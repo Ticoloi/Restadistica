@@ -9,6 +9,7 @@ data3<- fread("aigua.csv")
 # Eliminem punts dels milers i convertim a número
 #Importantt!!!!
 data3$'Domèstic xarxa' <- as.numeric(gsub("\\.", "", data3$'Domèstic xarxa'))
+data3$`Activitats econòmiques i fonts pròpies` <- as.numeric(gsub("\\.", "", data3$`Activitats econòmiques i fonts pròpies`))
 
 # Data3 pugui fer
 # funcions del tidyverse
