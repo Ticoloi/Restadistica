@@ -2,35 +2,35 @@ library(data.table)
 library(tidyverse)
 library(simmer)
 library(simmer.plot)
+library(dplyr)
 
-
-data3<- fread("aigua.csv")
+consum_aigua<- fread("aigua.csv")
+#https://analisi.transparenciacatalunya.cat/Economia/Producte-interior-brut-territorial/ung3-i3j2/about_data
+pib_provincia<- fread("pib_provincia.csv")
 
 # Eliminem punts dels milers i convertim a número
 #Importantt!!!!
-data3$'Domèstic xarxa' <- as.numeric(gsub("\\.", "", data3$'Domèstic xarxa'))
-data3$`Activitats econòmiques i fonts pròpies` <- as.numeric(gsub("\\.", "", data3$`Activitats econòmiques i fonts pròpies`))
+consum_aigua$'Domèstic xarxa' <- as.numeric(gsub("\\.", "", consum_aigua$'Domèstic xarxa'))
+consum_aigua$`Activitats econòmiques i fonts pròpies` <- as.numeric(gsub("\\.", "", consum_aigua$`Activitats econòmiques i fonts pròpies`))
 
-# Data3 pugui fer
+# consum_aigua pugui fer
 # funcions del tidyverse
-glimpse(data3)
-summarise(data3,
+glimpse(consum_aigua)
+summarise(consum_aigua,
           n = n(),
           n.na = sum(is.na(`Codi comarca`)))
 
 
 # Compta nombre de files
-summarise(data3,
+summarise(consum_aigua,
           n.cat = n_distinct(`Codi comarca`))
 
 
 # Amb missings
-recompte = count(data3, `Codi comarca`)
+recompte = count(consum_aigua, `Codi comarca`)
 
 
-
-
-#ggplot(data3, aes(y = `Codi comarca`, x = `Domèstic xarxa`)) +
+#ggplot(consum_aigua, aes(y = `Codi comarca`, x = `Domèstic xarxa`)) +
 #  geom_point(alpha = 0.5, color = "darkblue") +
 #  coord_flip() +
 #  labs(title = "Valors de Domèstic xarxa per Comarca",
@@ -39,7 +39,7 @@ recompte = count(data3, `Codi comarca`)
 #  theme_minimal()
 
 
-ggplot(data3 %>% filter(`Comarca` == "BAIX CAMP, EL"), aes(y = Any, x = `Domèstic xarxa`)) +
+ggplot(consum_aigua %>% filter(`Comarca` == "BAIX CAMP, EL"), aes(y = Any, x = `Domèstic xarxa`)) +
   geom_point(alpha = 0.5, color = "darkblue") +
   coord_flip() +
   labs(title = "Consum per any a la comarca BAIX CAMP",
@@ -47,11 +47,11 @@ ggplot(data3 %>% filter(`Comarca` == "BAIX CAMP, EL"), aes(y = Any, x = `Domèst
        x = "Domèstic xarxa") +
   theme_minimal()
 
-data3 <- data3 %>%
+consum_aigua <- consum_aigua %>%
   mutate(`Domèstic xarxa` = as.numeric(`Domèstic xarxa`))
 
 # I després ja pots fer el gràfic
-data_baix_camp <- data3 %>%
+data_baix_camp <- consum_aigua %>%
   filter(`Comarca` == "BAIX CAMP, EL") %>%
   group_by(Any) %>%
   summarise(`Domèstic xarxa` = sum(`Domèstic xarxa`, na.rm = TRUE))
@@ -64,3 +64,137 @@ ggplot(data_baix_camp, aes(x = Any, y = `Domèstic xarxa`)) +
        x = "Any",
        y = "Domèstic xarxa (Total)") +
   theme_minimal()
+
+
+consum_aigua <- consum_aigua %>%
+  mutate(`Domèstic xarxa` = as.numeric(`Domèstic xarxa`))
+
+# I després ja pots fer el gràfic
+data_baix_camp <- consum_aigua %>%
+  filter(`Comarca` == "BAIX CAMP, EL") %>%
+  group_by(Any) %>%
+  summarise(`Domèstic xarxa` = sum(`Domèstic xarxa`, na.rm = TRUE))
+
+ggplot(data_baix_camp, aes(x = Any, y = `Domèstic xarxa`)) +
+  geom_line(color = "darkblue", linewidth = 1) +
+  geom_point(alpha = 0.7, color = "darkblue", size = 3) +
+  scale_y_continuous(limits = c(0, NA), expand = c(0, 0)) +
+  labs(title = "Consum per any a la comarca BAIX CAMP",
+       x = "Any",
+       y = "Domèstic xarxa (Total)") +
+  theme_minimal()
+
+
+
+# Mostrar barres ----------------------------------------------------------
+
+# Calcular el consum total per any de totes les comarques
+consum_total_any <- consum_aigua %>%
+  group_by(Any) %>%
+  summarise(
+    Consum_total = sum(`Domèstic xarxa` + `Activitats econòmiques i fonts pròpies`, na.rm = TRUE),
+    Domèstic_total = sum(`Domèstic xarxa`, na.rm = TRUE),
+    Activitats_total = sum(`Activitats econòmiques i fonts pròpies`, na.rm = TRUE)
+  )
+
+# Mostrar les dades per verificar
+print(consum_total_any)
+
+# Gràfic del consum total per any (línia) - AMB TOTS ELS ANYS
+ggplot(consum_total_any, aes(x = Any, y = Consum_total)) +
+  geom_line(color = "darkred", linewidth = 1.2) +
+  geom_point(color = "darkred", size = 3) +
+  labs(title = "Consum total d'aigua per any (Totes les comarques)",
+       subtitle = "Suma de consum domèstic i activitats econòmiques",
+       x = "Any",
+       y = "Consum total (m³)") +
+  scale_x_continuous(breaks = unique(consum_total_any$Any)) +  # AQUESTA ÉS LA CLAU
+  scale_y_continuous(labels = scales::comma) +
+  theme_minimal() +
+  theme(plot.title = element_text(face = "bold", size = 14),
+        plot.subtitle = element_text(color = "gray50"),
+        axis.text.x = element_text(angle = 45, hjust = 1))  # Giro els anys per llegibilitat
+
+# I ARA el gràfic comparatiu de les dues categories - AMB TOTS ELS ANYS
+consum_total_any %>%
+  pivot_longer(cols = c(Domèstic_total, Activitats_total),
+               names_to = "Categoria",
+               values_to = "Consum") %>%
+  mutate(Categoria = case_when(
+    Categoria == "Domèstic_total" ~ "Consum Domèstic",
+    Categoria == "Activitats_total" ~ "Activitats Econòmiques"
+  )) %>%
+  ggplot(aes(x = Any, y = Consum, color = Categoria, group = Categoria)) +
+  geom_line(linewidth = 1.2) +
+  geom_point(size = 3) +
+  labs(title = "Consum d'aigua per tipus i any (Totes les comarques)",
+       x = "Any",
+       y = "Consum (m³)",
+       color = "Tipus de consum") +
+  scale_x_continuous(breaks = unique(consum_total_any$Any)) +  # AQUESTA ÉS LA CLAU
+  scale_y_continuous(labels = scales::comma) +
+  scale_color_manual(values = c("Consum Domèstic" = "darkblue",
+                                "Activitats Econòmiques" = "darkorange")) +
+  theme_minimal() +
+  theme(plot.title = element_text(face = "bold", size = 14),
+        legend.position = "bottom",
+        axis.text.x = element_text(angle = 45, hjust = 1))  # Giro els anys per llegibilitat
+
+# PIV i aigua a les comarques gironines (WIP) ----------------------------------------------------------
+
+comarques_girona <- c(
+  "ALT EMPORDÀ, L'", "BAIX EMPORDÀ, EL", "GIRONÈS, EL", "SELVA, LA",
+  "RIPOLLÈS, EL", "GARROTXA, LA", "PLA DE L'ESTANY, EL", "CERDANYA, LA"
+)
+
+consum_total_girona <- consum_aigua %>%
+  filter(Comarca %in% comarques_girona) %>%
+  group_by(Any) %>%
+  summarise(
+    Consum_total = sum(`Domèstic xarxa` + `Activitats econòmiques i fonts pròpies`, na.rm = TRUE),
+    Domèstic_total = sum(`Domèstic xarxa`, na.rm = TRUE),
+    Activitats_total = sum(`Activitats econòmiques i fonts pròpies`, na.rm = TRUE)
+  )
+
+pib_girona <- pib_provincia %>%
+  filter(`àmbit territorial de planificació` == "Comarques Gironines" ) %>%
+  rename(Total = `branques d'activitat`) %>% # canvia el nom de la columna
+  filter(Total == "total") %>%
+  rename(Any = any) %>% # canvia el nom de la columna
+  rename(PIB = valor) %>%
+  dplyr::select(Any, PIB) %>%
+  group_by(Any)
+
+taula_final <- consum_total_girona %>%
+  inner_join(pib_girona, by = "Any")
+
+# I ARA el gràfic comparatiu de les dues categories - AMB TOTS ELS ANYS
+taula_final %>%
+  pivot_longer(cols = c(Domèstic_total, Activitats_total),
+               names_to = "Categoria",
+               values_to = "Consum") %>%
+  mutate(Categoria = case_when(
+    Categoria == "Domèstic_total" ~ "Consum Domèstic",
+    Categoria == "Activitats_total" ~ "Activitats Econòmiques"
+  )) %>%
+  ggplot(aes(x = Any, y = Consum, color = Categoria, group = Categoria)) +
+  geom_line(linewidth = 1.2) +
+  geom_point(size = 3) +
+  labs(title = "Consum d'aigua per tipus i any (Totes les comarques)",
+       x = "Any",
+       y = "Consum (m³)",
+       color = "Tipus de consum") +
+  scale_x_continuous(breaks = unique(taula_final$Any)) +  # AQUESTA ÉS LA CLAU
+  scale_y_continuous(labels = scales::comma) +
+  scale_color_manual(values = c("Consum Domèstic" = "darkblue",
+                                "Activitats Econòmiques" = "darkorange")) +
+  theme_minimal() +
+  theme(plot.title = element_text(face = "bold", size = 14),
+        legend.position = "bottom",
+        axis.text.x = element_text(angle = 45, hjust = 1))  # Giro els anys per llegibilitat
+
+
+
+
+
+
