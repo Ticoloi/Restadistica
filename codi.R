@@ -98,13 +98,15 @@ taula_resultat <- consum_total_girona %>%
   inner_join(pib_girona, by = "Any")
 
 
+
+
+# PIV i aigua a alt_pirineu_i_aran<s (WIP) ----------------------------------------------------------
+
 comarques_alt_pirineu_i_aran <- c(
   "CERDANYA, LA", "VAL D'ARAN, LA", "PALLARS JUSSÀ, EL", "PALLARS SOBIRÀ, EL", "ALT URGELL, L'",
   "ALTA RIBAGORÇA, L'"
 
 )
-
-# PIV i aigua a alt_pirineu_i_aran<s (WIP) ----------------------------------------------------------
 
 consum_total_alt_pirineu_i_aran<- consum_aigua %>%
   filter(Comarca %in% comarques_alt_pirineu_i_aran) %>%
