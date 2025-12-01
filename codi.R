@@ -286,6 +286,47 @@ taula_resultat_completa <- bind_rows(
 )
 
 
+library(dplyr)
+library(ggplot2)
+library(tidyr)
+
+# Calcula variació percentual any-a-any
+taula_variacions <- taula_resultat_completa %>%
+  arrange(Any) %>%
+  mutate(
+    PIB_var = (PIB / lag(PIB) - 1) * 100,
+    Poblacio_var = (Població / lag(Població) - 1) * 100
+  ) %>%
+  drop_na()   # Eliminem el primer any, que no té variació
+
+# Preparem dades per graficar
+taula_long <- taula_variacions %>%
+  dplyr::select(Any, PIB_var, Poblacio_var) %>%
+  pivot_longer(cols = c(PIB_var, Poblacio_var),
+               names_to = "Variable",
+               values_to = "Variacio")
+
+# Gràfic
+ggplot(taula_long, aes(x = Any, y = Variacio, color = Variable, group = Variable)) +
+  geom_line(linewidth = 1.2) +
+  geom_point(size = 3) +
+  labs(
+    title = "Variació percentual anual (%) de PIB i població",
+    x = "Any",
+    y = "Variació (%)",
+    color = "Indicador"
+  ) +
+  scale_color_manual(values = c("PIB_var" = "darkblue",
+                                "Poblacio_var" = "darkorange"),
+                     labels = c("PIB_var" = "PIB (%)",
+                                "Poblacio_var" = "Població (%)")) +
+  scale_y_continuous(labels = scales::percent_format(scale = 1)) +
+  theme_minimal() +
+  theme(
+    plot.title = element_text(size = 14, face = "bold"),
+    legend.position = "bottom"
+  )
+
 
 
 
