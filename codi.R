@@ -286,6 +286,9 @@ taula_resultat_completa <- bind_rows(
 )
 
 
+
+# A partir d'aquí, tot esta malament, cuidao
+
 library(dplyr)
 library(ggplot2)
 library(tidyr)
