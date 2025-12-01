@@ -127,10 +127,66 @@ pib_alt_pirineu_i_aran <- pib_provincia %>%
   group_by(Any)
 
 
+
+# PIV i aigua a Ponent (WIP) ----------------------------------------------------------
+
+comarques_ponent <- c(
+  "GARRIGUES, LES", "NOGUERA, LA", "PLA D'URGELL, EL", "SEGARRA, LA",
+  "SEGRIÀ, EL", "URGELL, L'"
+)
+
+consum_total_ponent<- consum_aigua %>%
+  filter(Comarca %in% comarques_ponent) %>%
+  group_by(Any) %>%
+  summarise(
+    Consum_total = sum(`Domèstic xarxa` + `Activitats econòmiques i fonts pròpies`, na.rm = TRUE),
+    Domèstic_total = sum(`Domèstic xarxa`, na.rm = TRUE),
+    Activitats_total = sum(`Activitats econòmiques i fonts pròpies`, na.rm = TRUE)
+  )
+
+pib_ponent <- pib_provincia %>%
+  filter(`àmbit territorial de planificació` == "Ponent") %>%
+  rename(Total = `branques d'activitat`) %>% # canvia el nom de la columna
+  filter(Total == "total") %>%
+  rename(Any = any) %>% # canvia el nom de la columna
+  rename(PIB = valor) %>%
+  dplyr::select(Any, PIB, `àmbit territorial de planificació`) %>%
+  group_by(Any)
+
+
+#PIB i aigua a Terres de l'Ebre ----------------------------------------------------------
+
+comarques_terres_ebre <- c(
+  "BAIX EBRE, EL", "MONTSIÀ, EL", "RIBERA D'EBRE, LA", "TERRA ALTA"
+
+)
+
+consum_total_terres_ebre<- consum_aigua %>%
+  filter(Comarca %in% comarques_terres_ebre) %>%
+  group_by(Any) %>%
+  summarise(
+    Consum_total = sum(`Domèstic xarxa` + `Activitats econòmiques i fonts pròpies`, na.rm = TRUE),
+    Domèstic_total = sum(`Domèstic xarxa`, na.rm = TRUE),
+    Activitats_total = sum(`Activitats econòmiques i fonts pròpies`, na.rm = TRUE)
+  )
+
+pib_terres_ebre <- pib_provincia %>%
+  filter(`àmbit territorial de planificació` == "Terres de l'Ebre") %>%
+  rename(Total = `branques d'activitat`) %>%  #canvia el nom de la columna
+  filter(Total == "total") %>%
+  rename(Any = any) %>% # canvia el nom de la columna
+  rename(PIB = valor) %>%
+  dplyr::select(Any, PIB, `àmbit territorial de planificació`) %>%
+  group_by(Any)
+
 taula_resultat <- bind_rows(
   taula_girona = consum_total_girona %>% inner_join(pib_girona, by = "Any"),
   taula_alt_pirineu_i_aran = consum_total_alt_pirineu_i_aran %>% inner_join(pib_alt_pirineu_i_aran, by = "Any"),
+  taula_ponent = consum_total_ponent %>% inner_join(pib_ponent, by = "Any"),
+  taula_ebre = consum_total_terres_ebre %>% inner_join(pib_terres_ebre, by = "Any")
 )
+
+
 
 
 
