@@ -14,17 +14,10 @@ pib_provincia<- fread("pib_provincia.csv")
 #Importantt!!!!
 consum_aigua$'Domèstic xarxa' <- as.numeric(gsub("\\.", "", consum_aigua$'Domèstic xarxa'))
 consum_aigua$`Activitats econòmiques i fonts pròpies` <- as.numeric(gsub("\\.", "", consum_aigua$`Activitats econòmiques i fonts pròpies`))
-
+consum_aigua$`Població` <- as.numeric(gsub("\\.", "", consum_aigua$`Població`))
 # Mostrar barres ----------------------------------------------------------
 
-# Calcular el consum total per any de totes les comarques
-consum_total_any <- consum_aigua %>%
-  group_by(Any) %>%
-  summarise(
-    Consum_total = sum(`Domèstic xarxa` + `Activitats econòmiques i fonts pròpies`, na.rm = TRUE),
-    Domèstic_total = sum(`Domèstic xarxa`, na.rm = TRUE),
-    Activitats_total = sum(`Activitats econòmiques i fonts pròpies`, na.rm = TRUE)
-  )
+
 
 # Mostrar les dades per verificar
 print(consum_total_any)
@@ -82,7 +75,7 @@ consum_total_girona <- consum_aigua %>%
   summarise(
     Consum_total = sum(`Domèstic xarxa` + `Activitats econòmiques i fonts pròpies`, na.rm = TRUE),
     Domèstic_total = sum(`Domèstic xarxa`, na.rm = TRUE),
-    Activitats_total = sum(`Activitats econòmiques i fonts pròpies`, na.rm = TRUE)
+    Activitats_total = sum(`Activitats econòmiques i fonts pròpies`, na.rm = TRUE), Població  = sum(`Població`, na.rm = TRUE)
   )
 
 pib_girona <- pib_provincia %>%
@@ -108,7 +101,7 @@ consum_total_alt_pirineu_i_aran<- consum_aigua %>%
   summarise(
     Consum_total = sum(`Domèstic xarxa` + `Activitats econòmiques i fonts pròpies`, na.rm = TRUE),
     Domèstic_total = sum(`Domèstic xarxa`, na.rm = TRUE),
-    Activitats_total = sum(`Activitats econòmiques i fonts pròpies`, na.rm = TRUE)
+    Activitats_total = sum(`Activitats econòmiques i fonts pròpies`, na.rm = TRUE), Població  = sum(`Població`, na.rm = TRUE)
   )
 
 pib_alt_pirineu_i_aran <- pib_provincia %>%
@@ -135,7 +128,7 @@ consum_total_ponent<- consum_aigua %>%
   summarise(
     Consum_total = sum(`Domèstic xarxa` + `Activitats econòmiques i fonts pròpies`, na.rm = TRUE),
     Domèstic_total = sum(`Domèstic xarxa`, na.rm = TRUE),
-    Activitats_total = sum(`Activitats econòmiques i fonts pròpies`, na.rm = TRUE)
+    Activitats_total = sum(`Activitats econòmiques i fonts pròpies`, na.rm = TRUE), Població  = sum(`Població`, na.rm = TRUE)
   )
 
 pib_ponent <- pib_provincia %>%
@@ -161,7 +154,7 @@ consum_total_terres_ebre<- consum_aigua %>%
   summarise(
     Consum_total = sum(`Domèstic xarxa` + `Activitats econòmiques i fonts pròpies`, na.rm = TRUE),
     Domèstic_total = sum(`Domèstic xarxa`, na.rm = TRUE),
-    Activitats_total = sum(`Activitats econòmiques i fonts pròpies`, na.rm = TRUE)
+    Activitats_total = sum(`Activitats econòmiques i fonts pròpies`, na.rm = TRUE), Població  = sum(`Població`, na.rm = TRUE)
   )
 
 pib_terres_ebre <- pib_provincia %>%
@@ -187,7 +180,7 @@ consum_total_camp_tarragona <- consum_aigua %>%
   summarise(
     Consum_total = sum(`Domèstic xarxa` + `Activitats econòmiques i fonts pròpies`, na.rm = TRUE),
     Domèstic_total = sum(`Domèstic xarxa`, na.rm = TRUE),
-    Activitats_total = sum(`Activitats econòmiques i fonts pròpies`, na.rm = TRUE)
+    Activitats_total = sum(`Activitats econòmiques i fonts pròpies`, na.rm = TRUE), Població  = sum(`Població`, na.rm = TRUE)
   )
 
 pib_camp_tarragona <- pib_provincia %>%
@@ -213,7 +206,7 @@ consum_total_catalunya_central <- consum_aigua %>%
   summarise(
     Consum_total = sum(`Domèstic xarxa` + `Activitats econòmiques i fonts pròpies`, na.rm = TRUE),
     Domèstic_total = sum(`Domèstic xarxa`, na.rm = TRUE),
-    Activitats_total = sum(`Activitats econòmiques i fonts pròpies`, na.rm = TRUE)
+    Activitats_total = sum(`Activitats econòmiques i fonts pròpies`, na.rm = TRUE), Població  = sum(`Població`, na.rm = TRUE)
   )
 
 pib_catalunya_central <- pib_provincia %>%
@@ -240,7 +233,7 @@ consum_total_metropolita <- consum_aigua %>%
   summarise(
     Consum_total = sum(`Domèstic xarxa` + `Activitats econòmiques i fonts pròpies`, na.rm = TRUE),
     Domèstic_total = sum(`Domèstic xarxa`, na.rm = TRUE),
-    Activitats_total = sum(`Activitats econòmiques i fonts pròpies`, na.rm = TRUE)
+    Activitats_total = sum(`Activitats econòmiques i fonts pròpies`, na.rm = TRUE), Població  = sum(`Població`, na.rm = TRUE)
   )
 
 pib_metropolita <- pib_provincia %>%
@@ -265,8 +258,9 @@ consum_total_ponent <- consum_aigua %>%
   summarise(
     Consum_total = sum(`Domèstic xarxa` + `Activitats econòmiques i fonts pròpies`, na.rm = TRUE),
     Domèstic_total = sum(`Domèstic xarxa`, na.rm = TRUE),
-    Activitats_total = sum(`Activitats econòmiques i fonts pròpies`, na.rm = TRUE)
+    Activitats_total = sum(`Activitats econòmiques i fonts pròpies`, na.rm = TRUE), Població  = sum(`Població`, na.rm = TRUE)
   )
+
 
 pib_ponent <- pib_provincia %>%
   filter(`àmbit territorial de planificació` == "Ponent") %>%
