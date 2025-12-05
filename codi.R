@@ -17,53 +17,6 @@ consum_aigua$`Activitats econòmiques i fonts pròpies` <- as.numeric(gsub("\\."
 consum_aigua$`Població` <- as.numeric(gsub("\\.", "", consum_aigua$`Població`))
 # Mostrar barres ----------------------------------------------------------
 
-
-
-# Mostrar les dades per verificar
-print(consum_total_any)
-
-# Gràfic del consum total per any (línia) - AMB TOTS ELS ANYS
-ggplot(consum_total_any, aes(x = Any, y = Consum_total)) +
-  geom_line(color = "darkred", linewidth = 1.2) +
-  geom_point(color = "darkred", size = 3) +
-  labs(title = "Consum total d'aigua per any (Totes les comarques)",
-       subtitle = "Suma de consum domèstic i activitats econòmiques",
-       x = "Any",
-       y = "Consum total (m³)") +
-  scale_x_continuous(breaks = unique(consum_total_any$Any)) +  # AQUESTA ÉS LA CLAU
-  scale_y_continuous(labels = scales::comma) +
-  theme_minimal() +
-  theme(plot.title = element_text(face = "bold", size = 14),
-        plot.subtitle = element_text(color = "gray50"),
-        axis.text.x = element_text(angle = 45, hjust = 1))  # Giro els anys per llegibilitat
-
-# I ARA el gràfic comparatiu de les dues categories - AMB TOTS ELS ANYS
-consum_total_any %>%
-  pivot_longer(cols = c(Domèstic_total, Activitats_total),
-               names_to = "Categoria",
-               values_to = "Consum") %>%
-  mutate(Categoria = case_when(
-    Categoria == "Domèstic_total" ~ "Consum Domèstic",
-    Categoria == "Activitats_total" ~ "Activitats Econòmiques"
-  )) %>%
-  ggplot(aes(x = Any, y = Consum, color = Categoria, group = Categoria)) +
-  geom_line(linewidth = 1.2) +
-  geom_point(size = 3) +
-  labs(title = "Consum d'aigua per tipus i any (Totes les comarques)",
-       x = "Any",
-       y = "Consum (m³)",
-       color = "Tipus de consum") +
-  scale_x_continuous(breaks = unique(consum_total_any$Any)) +  # AQUESTA ÉS LA CLAU
-  scale_y_continuous(labels = scales::comma) +
-  scale_color_manual(values = c("Consum Domèstic" = "darkblue",
-                                "Activitats Econòmiques" = "darkorange")) +
-  theme_minimal() +
-  theme(plot.title = element_text(face = "bold", size = 14),
-        legend.position = "bottom",
-        axis.text.x = element_text(angle = 45, hjust = 1))  # Giro els anys per llegibilitat
-
-# PIV i aigua a les comarques gironines (WIP) ----------------------------------------------------------
-
 comarques_girona <- c(
   "ALT EMPORDÀ, L'", "BAIX EMPORDÀ, EL", "GIRONÈS, EL", "SELVA, LA",
   "RIPOLLÈS, EL", "GARROTXA, LA", "PLA DE L'ESTANY, EL"
@@ -286,9 +239,6 @@ taula_resultat_completa <- bind_rows(
 )
 
 
-
-# A partir d'aquí, tot esta malament, cuidao
-
 library(dplyr)
 library(ggplot2)
 library(tidyr)
@@ -296,6 +246,7 @@ library(tidyr)
 # Calcula variació percentual any-a-any
 taula_variacions <- taula_resultat_completa %>%
   arrange(Any) %>%
+  group_by(Any)  %>%
   mutate(
     PIB_var = (PIB / lag(PIB) - 1) * 100,
     Poblacio_var = (Població / lag(Població) - 1) * 100
