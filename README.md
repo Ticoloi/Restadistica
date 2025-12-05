@@ -1,2 +1,2 @@
 # Restadistica
-TreballEstadisticaR
+TreballEstadisticaR, està escrit en R.
