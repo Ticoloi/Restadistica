@@ -1,0 +1,103 @@
+---
+title: "Anàlisis embassaments a Catalunya"
+subtitle: "Amb R."
+author: "Aigua"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+
+```{r setup, include=FALSE}
+source('../scripts/codi.R')
+```
+
+# 1. Introducció dev:
+
+Expliqueu breument:
+- D’on prové el conjunt de dades.
+- Quin és l’objectiu del projecte.
+- Quina pregunta voleu respondre.
+- Per què aquestes dades són adequades per aquesta pregunta.
+
+Les dades provenen de l'intitut de dades obertes de Catalunya:
+  https://analisi.transparenciacatalunya.cat/Medi-Ambient/Consum-d-aigua-a-Catalunya-per-comarques/2gws-ubmt/about_data
+  
+  
+# 2. Importació de les dades
+
+Mostreu com heu importat el fitxer i quin nom té l’objecte carregat.
+
+```{r import}
+# Exemple d'importació (modifiqueu segons calgui)
+# dades <- read_csv("nom_fitxer.csv")
+```
+
+Expliqueu:
+- Quin era el format original (CSV, XLSX, txt…)
+- Si heu fet cap modificació prèvia (neteja, reanomenar columnes, selecció de variables…)
+
+# 3. Dimensions del dataset
+
+```{r dimensions, include=FALSE, }
+
+```
+
+Incloeu:
+- Nombre de files.
+- Nombre de columnes.
+- Quina és la unitat d'anàlisi (persona, empresa, producte, mesura…)
+
+# 4. Diccionari de variables
+
+Descriviu cada variable del dataset.
+
+| Variable | Tipus | Descripció | Valors possibles / rang |
+|----------|--------|-------------|---------------------------|
+| Any | numèrica | Any de facturació dels consums al qual fan referència les dades | 0–100 |
+| Codi comarca | numèrica |Codi de la comarca| 0–100 |
+| Comarca | text | Comarca a la qual fan referència les dades| 0–100 |
+| Població | numèrica | Nombre d’habitants de la comarca a partir de dades del Padró municipal d’habitants a 1 de gener | 0–100 |
+| Domèstic xarxa | numèrica | Volum consumit facturat a les llars connectades a la xarxa de subministrament d’aigua. Mesurat en metres cúbic| 0–100 |
+| Activitats econòmiques i fonts pròpies | numèrica | Volum consumit facturat a les llars connectades a la xarxa de subministrament d’aigua. Mesurat en metres cúbics| 0–100 |
+| Total | numèrica | Volum consumit facturat a les llars connectades a la xarxa de subministrament d’aigua. Mesurat en metres cúbic | 0–100 |
+| PIB | numèrica | PIB de la regió | 0–100 |
+
+```{r variable-types}
+# tibble(
+#   variable = names(dades),
+#   tipus = sapply(dades, class)
+# )
+```
+
+# 5. Estadístiques descriptives
+
+```{r descriptives}
+# summary(dades)
+```
+
+Comenteu:
+- Si hi ha valors perduts.
+- Si alguna variable s’hauria de transformar.
+- Outliers o valors estranys.
+
+# 6. Visualització inicial
+
+Incloeu una o dues gràfiques exploratòries.
+
+```{r plots, fig.width=6, fig.height=4}
+# Exemple:
+# ggplot(dades, aes(x = variable)) + geom_histogram()
+```
+
+# 7. Variables externes i dades addicionals
+
+Expliqueu:
+- Si necessitareu dades externes per completar l’anàlisi.
+- On les podríeu trobar.
+- Si falten variables per respondre la pregunta inicial.
+
+# 8. Altres comentaris
+
+Incloeu qualsevol altre detall rellevant del procés de preparació de dades.
+
+# ![Caption for the picture.](udg70px.png)
