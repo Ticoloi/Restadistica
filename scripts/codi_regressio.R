@@ -38,11 +38,22 @@ primer_any_valor <- taula_a_estudiar %>%
   dplyr::select(Regio, Consum_per_capita) %>%
   rename(Consum_per_capita_inicial = Consum_per_capita)
 
-
 # Afegir valor inicial a la taula completa
 taula_a_estudiar <- taula_a_estudiar %>%
   left_join(primer_any_valor, by = "Regio") %>%
   mutate(Consum_per_capita_index = Consum_per_capita / Consum_per_capita_inicial)
+
+# Obtenir valor del primer any per cada regió
+primer_any_valor <- taula_a_estudiar %>%
+  group_by(Regio) %>%
+  filter(Any == min(Any)) %>%
+  dplyr::select(Regio, Activitats_total) %>%
+  rename(Activitats_total_inicial = Activitats_total)
+
+# Afegir valor inicial (2) a la taula completa
+taula_a_estudiar <- taula_a_estudiar %>%
+  left_join(primer_any_valor, by = "Regio") %>%
+  mutate(Activitats_total_index = Activitats_total / Activitats_total_inicial)
 
 
 # -------------------------------------------------------------------------
@@ -76,13 +87,13 @@ ggplot(taula_a_estudiar,
 
 
 # -------------------------------------------------------------------------
-# Gràfic amb índex (relatiu al primer any)
+# Gràfic amb índex (relatiu al primer any) económic
 # -------------------------------------------------------------------------
 
 ggplot(taula_a_estudiar,
        aes(
          x = Any,
-         y = Consum_per_capita_index,
+         y = Activitats_total_index,
          color = Regio,
          group = Regio
        )) +
