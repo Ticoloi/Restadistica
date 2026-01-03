@@ -56,6 +56,19 @@ taula_a_estudiar <- taula_a_estudiar %>%
   mutate(Activitats_total_index = Activitats_total / Activitats_total_inicial)
 
 
+# Obtenir valor del primer any per cada regió
+primer_any_valor <- taula_a_estudiar %>%
+  group_by(Regio) %>%
+  filter(Any == min(Any)) %>%
+  dplyr::select(Regio, Domèstic_total) %>%
+  rename(Domèstic_total_inicial = Domèstic_total)
+
+# Afegir valor inicial (2) a la taula completa
+taula_a_estudiar <- taula_a_estudiar %>%
+  left_join(primer_any_valor, by = "Regio") %>%
+  mutate(Domèstic_total_index = Domèstic_total / Domèstic_total_inicial)
+
+
 # -------------------------------------------------------------------------
 # Gràfic amb índex (relatiu al primer any)
 # -------------------------------------------------------------------------
@@ -70,7 +83,7 @@ ggplot(taula_a_estudiar,
   geom_line(linewidth = 1.2) +
   geom_point(size = 2) +
   labs(
-    title = "Consum d'aigua domestic per total relatiu al primer any per regió",
+    title = "Consum d'aigua per capita total relatiu al primer any per regió",
     x = "Any",
     y = "Consum domestic/total (índex, primer any = 1)",
     color = "Regió"
@@ -114,3 +127,38 @@ ggplot(taula_a_estudiar,
     axis.text.x = element_text(angle = 45, hjust = 1),
     legend.position = "bottom"
   )
+
+# -------------------------------------------------------------------------
+# Gràfic amb índex (relatiu al primer any) económic
+# -------------------------------------------------------------------------
+
+ggplot(taula_a_estudiar,
+       aes(
+         x = Any,
+         y = Domèstic_total_index,
+         color = Regio,
+         group = Regio
+       )) +
+  geom_line(linewidth = 1.2) +
+  geom_point(size = 2) +
+  labs(
+    title = "Consum d'aigua domestic_total per total relatiu al primer any per regió",
+    x = "Any",
+    y = "Consum economic/total (índex, primer any = 1)",
+    color = "Regió"
+  ) +
+  scale_x_continuous(breaks = unique(taula_a_estudiar$Any)) +
+  scale_y_continuous(labels = scales::number_format(accuracy = 0.01),
+                     limits = c(0, NA)) +
+  theme_minimal() +
+  theme(
+    plot.title = element_text(face = "bold", size = 14),
+    axis.text.x = element_text(angle = 45, hjust = 1),
+    legend.position = "bottom"
+  )
+
+# -------------------------------------------------------------------------
+# Contrast amb un test t-student
+# -------------------------------------------------------------------------
+
+
