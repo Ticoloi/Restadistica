@@ -298,6 +298,23 @@ taula_resultat_completa <- bind_rows(
   .id = "Regio"
 )
 
+rm(pib_girona)
+rm(pib_alt_pirineu_i_aran)
+rm(pib_ponent)
+rm(pib_terres_ebre)
+rm(pib_camp_tarragona)
+rm(pib_catalunya_central)
+rm(pib_metropolita)
+
+rm(consum_total_girona)
+rm(consum_total_alt_pirineu_i_aran)
+rm(consum_total_ponent)
+rm(consum_total_terres_ebre)
+rm(consum_total_camp_tarragona)
+rm(consum_total_catalunya_central)
+rm(consum_total_metropolita)
+
+
 library(dplyr)
 library(ggplot2)
 library(tidyr)

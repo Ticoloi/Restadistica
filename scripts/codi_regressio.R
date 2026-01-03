@@ -96,6 +96,13 @@ ggplot(taula_a_estudiar,
     plot.title = element_text(face = "bold", size = 14),
     axis.text.x = element_text(angle = 45, hjust = 1),
     legend.position = "bottom"
+  )+ geom_smooth(
+    aes(group = 1),
+    method = "lm",
+    se = FALSE,
+    color = "black",
+    linewidth = 1.3,
+    linetype = "dashed"
   )
 
 
@@ -126,7 +133,15 @@ ggplot(taula_a_estudiar,
     plot.title = element_text(face = "bold", size = 14),
     axis.text.x = element_text(angle = 45, hjust = 1),
     legend.position = "bottom"
+  )+ geom_smooth(
+    aes(group = 1),
+    method = "lm",
+    se = FALSE,
+    color = "black",
+    linewidth = 1.3,
+    linetype = "dashed"
   )
+
 
 # -------------------------------------------------------------------------
 # Gràfic amb índex (relatiu al primer any) económic
@@ -155,10 +170,25 @@ ggplot(taula_a_estudiar,
     plot.title = element_text(face = "bold", size = 14),
     axis.text.x = element_text(angle = 45, hjust = 1),
     legend.position = "bottom"
+  )+ geom_smooth(
+    aes(group = 1),
+    method = "lm",
+    se = FALSE,
+    color = "black",
+    linewidth = 1.3,
+    linetype = "dashed"
   )
 
 # -------------------------------------------------------------------------
 # Contrast amb un test t-student
 # -------------------------------------------------------------------------
+
+model_global_economic <- lm(Activitats_total_index ~ Any, data = taula_a_estudiar)
+summary(model_global)
+
+model_global_domestic <- lm(Domèstic_total_index ~ Any, data = taula_a_estudiar)
+summary(model_global)
+
+t.test(taula_a_estudiar$Activitats_total, taula_a_estudiar$Domèstic_total)
 
 
