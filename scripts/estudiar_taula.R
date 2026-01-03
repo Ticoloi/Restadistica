@@ -74,6 +74,35 @@ ggplot(taula_a_estudiar,
 
 
 # -------------------------------------------------------------------------
+# Gràfic amb índex (relatiu al primer any)
+# -------------------------------------------------------------------------
+
+ggplot(taula_a_estudiar,
+       aes(
+         x = Any,
+         y = Consum_per_capita_index,
+         color = Regio,
+         group = Regio
+       )) +
+  geom_line(linewidth = 1.2) +
+  geom_point(size = 2) +
+  labs(
+    title = "Consum d'aigua domestic per total relatiu al primer any per regió",
+    x = "Any",
+    y = "Consum domestic/total (índex, primer any = 1)",
+    color = "Regió"
+  ) +
+  scale_x_continuous(breaks = unique(taula_a_estudiar$Any)) +
+  scale_y_continuous(labels = scales::number_format(accuracy = 0.01),
+                     limits = c(0, NA)) +
+  theme_minimal() +
+  theme(
+    plot.title = element_text(face = "bold", size = 14),
+    axis.text.x = element_text(angle = 45, hjust = 1),
+    legend.position = "bottom"
+  )
+
+# -------------------------------------------------------------------------
 # Calcular ara Polynomial Regression
 # -------------------------------------------------------------------------
 

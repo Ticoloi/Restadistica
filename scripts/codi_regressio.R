@@ -38,10 +38,12 @@ primer_any_valor <- taula_a_estudiar %>%
   dplyr::select(Regio, Consum_per_capita) %>%
   rename(Consum_per_capita_inicial = Consum_per_capita)
 
+
 # Afegir valor inicial a la taula completa
 taula_a_estudiar <- taula_a_estudiar %>%
   left_join(primer_any_valor, by = "Regio") %>%
   mutate(Consum_per_capita_index = Consum_per_capita / Consum_per_capita_inicial)
+
 
 # -------------------------------------------------------------------------
 # Gràfic amb índex (relatiu al primer any)
@@ -74,32 +76,30 @@ ggplot(taula_a_estudiar,
 
 
 # -------------------------------------------------------------------------
-# Calcular ara Polynomial Regression
+# Gràfic amb índex (relatiu al primer any)
 # -------------------------------------------------------------------------
 
-# Model lineal: Consum per càpita vs Any
-model_global <- lm(Consum_per_capita ~ Any, data = taula_a_estudiar)
-summary(model_global)
-
-# Crear una llista amb models per regió
-models_per_regio <- taula_a_estudiar %>%
-  group_by(Regio) %>%
-  group_map(~ lm(Consum_per_capita ~ Any, data = .x))
-
-# Exemple: veure resultat del primer model
-summary(models_per_regio[[1]])
-
 ggplot(taula_a_estudiar,
-       aes(x = Any, y = Consum_per_capita, color = Regio)) +
+       aes(
+         x = Any,
+         y = Consum_per_capita_index,
+         color = Regio,
+         group = Regio
+       )) +
+  geom_line(linewidth = 1.2) +
   geom_point(size = 2) +
-  geom_smooth(method = "lm",
-              se = FALSE,
-              linewidth = 1.2) +
   labs(
-    title = "Regressió lineal Consum domèstic per càpita per regió",
+    title = "Consum d'aigua economic per total relatiu al primer any per regió",
     x = "Any",
-    y = "Consum per persona (m³/any)",
+    y = "Consum economic/total (índex, primer any = 1)",
     color = "Regió"
   ) +
   scale_x_continuous(breaks = unique(taula_a_estudiar$Any)) +
-  theme_minimal()
+  scale_y_continuous(labels = scales::number_format(accuracy = 0.01),
+                     limits = c(0, NA)) +
+  theme_minimal() +
+  theme(
+    plot.title = element_text(face = "bold", size = 14),
+    axis.text.x = element_text(angle = 45, hjust = 1),
+    legend.position = "bottom"
+  )
