@@ -216,3 +216,64 @@ taula_girona %>%
 #       axis.text.x = element_text(angle = 45, hjust = 1))  # Giro els anys per llegibilitat
 
 # PIV i aigua a les comarques gironines (WIP) ----------------------------------------------------------
+
+
+library(dplyr)
+library(ggplot2)
+library(tidyr)
+
+# Calcula variació percentual any-a-any
+taula_variacions <- taula_resultat_completa %>%
+  arrange(Any) %>%
+  group_by(Any)  %>%
+  mutate(PIB_var = (PIB / lag(PIB) - 1) * 100,
+         Poblacio_var = (Població / lag(Població) - 1) * 100) %>%
+  drop_na()   # Eliminem el primer any, que no té variació
+
+# Preparem dades per graficar
+taula_long <- taula_variacions %>%
+  dplyr::select(Any, PIB_var, Poblacio_var) %>%
+  pivot_longer(
+    cols = c(PIB_var, Poblacio_var),
+    names_to = "Variable",
+    values_to = "Variacio"
+  )
+
+# Gràfic
+ggplot(taula_long,
+       aes(
+         x = Any,
+         y = Variacio,
+         color = Variable,
+         group = Variable
+       )) +
+  geom_line(linewidth = 1.2) +
+  geom_point(size = 3) +
+  labs(
+    title = "Variació percentual anual (%) de PIB i població",
+    x = "Any",
+    y = "Variació (%)",
+    color = "Indicador"
+  ) +
+  scale_color_manual(
+    values = c(
+      "PIB_var" = "darkblue",
+      "Poblacio_var" = "darkorange"
+    ),
+    labels = c("PIB_var" = "PIB (%)", "Poblacio_var" = "Població (%)")
+  ) +
+  scale_y_continuous(labels = scales::percent_format(scale = 1)) +
+  theme_minimal() +
+  theme(plot.title = element_text(size = 14, face = "bold"),
+        legend.position = "bottom")
+
+
+# Estudio girona¡
+taula_a_estudiar_test <-taula_a_estudiar %>%
+  dplyr::filter(Regio == 'taula_girona')
+ml <- lm(Domèstic_total_index ~ Any, data = taula_a_estudiar_test)
+taula_reg <- taula_a_estudiar_test %>%
+  dplyr::select(Domèstic_total_index, Any) %>%
+  dplyr::mutate(
+    valor_regresio = ml$coefficients[1] + ml$coefficients[2] * Any,
+    Regio = 'Girona'

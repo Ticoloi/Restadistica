@@ -4,6 +4,8 @@ library(simmer)
 library(simmer.plot)
 library(dplyr)
 library(caret)
+library(purrr)
+
 
 # Carregar funcions/dades del teu script
 source("scripts/codi.R")
@@ -29,7 +31,7 @@ taula_final <- taula_resultat_completa %>%
 
 # Calculem Consum_per_capita
 taula_a_estudiar <- taula_resultat_completa %>%
-  mutate(Consum_per_capita = Domèstic_total)
+  mutate(Consum_per_capita = Domèstic_total/Població)
 
 # Obtenir valor del primer any per cada regió
 primer_any_valor <- taula_a_estudiar %>%
@@ -183,12 +185,65 @@ ggplot(taula_a_estudiar,
 # Contrast amb un test t-student
 # -------------------------------------------------------------------------
 
-model_global_economic <- lm(Activitats_total_index ~ Any, data = taula_a_estudiar)
-summary(model_global)
+#model_global_cap <- lm(Consum_per_capita_index ~ Any, data = taula_a_estudiar)
+#summary(model_global)
 
-model_global_domestic <- lm(Domèstic_total_index ~ Any, data = taula_a_estudiar)
-summary(model_global)
+#model_global_domestic <- lm(Domèstic_total_index ~ Any, data = taula_a_estudiar)
+#summary(model_global)
+regions_cat <- c(
+  "taula_alt_pirineu_i_aran",
+  "taula_girona",
+  "taula_catcentral",
+  "taula_ebre",
+  "taula_camp_tarragona",
+  "taula_ponent",
+  "taula_metropolita"
+)
 
-t.test(taula_a_estudiar$Activitats_total, taula_a_estudiar$Domèstic_total)
+llista_taules <- vector("list", length(regions_cat))
+names(llista_taules) <- regions_cat
+
+for(i in seq_along(regions_cat)) {
+  
+  taula_a_estudiar_test <- taula_a_estudiar %>%
+    dplyr::filter(Regio == regions_cat[i])
+  
+  ml  <- lm(Domèstic_total_index ~ Any, data = taula_a_estudiar_test)
+  ml2 <- lm(Consum_per_capita_index ~ Any, data = taula_a_estudiar_test)
+  
+  taula_reg <- taula_a_estudiar_test %>%
+    dplyr::select(Domèstic_total_index, Consum_per_capita_index, Any) %>%
+    dplyr::mutate(
+      valor_regresio_dom = ml$coefficients[1] + ml$coefficients[2] * Any,
+      valor_regresio_cap = ml2$coefficients[1] + ml2$coefficients[2] * Any,
+      Regio = regions_cat[i]
+    )
+  
+  llista_taules[[i]] <- taula_reg
+}
+
+llista_student <- vector("list", length(regions_cat))
+names(llista_student) <- regions_cat
+
+for(i in seq_along(regions_cat)) {
+  # No serveix molt
+  llista_student[[i]] <- t.test(llista_taules[[i]]$valor_regresio_cap, llista_taules[[i]]$valor_regresio_dom)
+}
 
 
+for(i in seq_along(llista_taules)) {
+  
+  df <- llista_taules[[i]]
+  
+  plot(
+    df$valor_regresio_dom,
+    df$valor_regresio_cap,
+    main = names(llista_taules)[i],
+    xlab = "Valor regressió Domèstic total",
+    ylab = "Valor regressió Consum per càpita",
+    pch = 19
+  )
+}
+
+
+shapiro.test(residuals(ml))
