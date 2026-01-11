@@ -17,12 +17,16 @@ consum_aigua$`Població` <- as.numeric(gsub("\\.", "", consum_aigua$`Població`)
 consum_aigua$`Total` <- as.numeric(gsub("\\.", "", consum_aigua$`Total`))
 
 
-# comarques: 
+# comarques:
 
 comarques <- consum_aigua %>%
-  dplyr::distinct(`Comarca`)
+  dplyr::distinct(`Comarca`) %>%
+  filter(Comarca != 'Moianès')
 
-n_comarques = (nrow(comarques))
+comarques <- comarques %>%
+  filter(Comarca != 'LLUÇANÈS, EL')
+
+n_comarques <- (nrow(comarques))
 noms_comarques <- comarques$Comarca
 
 # llista regresuio lineal
@@ -31,39 +35,51 @@ regresio_lineal <- vector("list", n_comarques)
 names(regresio_lineal) <- noms_comarques
 
 # regresio lineal per cada comarca
-for (i in seq_along(noms_comarques)) {
-  
+for (i in seq_along(0:(n_comarques - 1))) {
   comarca_i <- noms_comarques[i]
   
   dades_comarca <- consum_aigua %>%
     filter(Comarca == comarca_i)
   
-  regresio_lineal[[i]] <- lm(
-    `Total` ~ Any,
-    data = dades_comarca
-  )
+  regresio_lineal[[i]] <- lm(`Total` ~ Any, data = dades_comarca)
 }
 
-# ara s'ha de trobar el punt crític
-taus <- seq(min(consum_aigua$Any), max(consum_aigua$Any), 1)
 
+
+# ara s'ha de trobar el punt crític
+# Vector anys guarda tots els anys possibles que hi hagin
+vector_anys <- seq(min(consum_aigua$Any), max(consum_aigua$Any), 1)
+
+# Inicialitzar punt óptim
 punt_optim <- vector("list", n_comarques)
 names(punt_optim) <- noms_comarques
 
+# Inicialitzar model amb tau (B0, B1, B2)
 model_amb_tau <- vector("list", n_comarques)
 names(model_amb_tau) <- noms_comarques
 
-# CORRECCIÓ: Càlcul correcte dels models amb tau per comarca
-for (i in seq_along(noms_comarques)) {
+
+
+for (i in seq_along(0:(n_comarques - 1))) {
   comarca_i <- noms_comarques[i]
-  dades_comarca <- consum_aigua %>% filter(Comarca == comarca_i)
+  dades_comarca <- consum_aigua %>%
+    filter(Comarca == comarca_i)
+
   
-  sse <- sapply(taus, function(tau) {
-    m <- lm(Total ~ Any + I(pmax(0, Any - tau)), data = dades_comarca)  # CANVI AQUÍ
+  sse <- sapply(vector_anys, function(tau) {
+    m <- lm(Total ~ Any + (pmax(0, Any - tau)), data =dades_comarca)
     sum(residuals(m)^2)
   })
-  
-  punt_optim[[i]] <- taus[which.min(sse)]
-  model_amb_tau[[i]] <- lm(Total ~ Any + I(pmax(0, Any - punt_optim[[i]])), 
-                           data = dades_comarca)  # CANVI AQUÍ
+
+  punt_optim[[i]] <- vector_anys[which.min(sse)]
+  model_amb_tau[[i]] <- lm(Total ~ Any + I(pmax(0, Any - punt_optim[[i]])), data = dades_comarca)
 }
+
+
+
+# clean
+rm(comarca_i)
+rm(dades_comarca)
+rm(i)
+rm(sse)
+rm(vector_anys)
