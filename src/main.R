@@ -3,6 +3,8 @@ library(tidyverse)
 library(simmer)
 library(simmer.plot)
 library(dplyr)
+library(purrr)
+
 
 # Lectura dades ----------------------------------------------------------
 
@@ -88,9 +90,24 @@ rm(vector_anys)
 anova_f <- vector("list", n_comarques)
 names(anova_f) <- noms_comarques
 
+comarques <- comarques %>%
+  mutate(
+    p = 0,
+    h =0
+  )
+
 # calcular anova
 for (i in seq_along(0:(n_comarques - 1))) {
   anova_f[[i]] <- anova(model_amb_tau[[i]], regresio_lineal[[i]])
+
+}
+
+
+for (i in seq_along(0:(n_comarques - 1))) {
+  comarques$p[i] <- anova_f[[i]]$`Pr(>F)`[2]
+  if(anova_f[[i]]$`Pr(>F)`[2] < 0.025 | anova_f[[i]]$`Pr(>F)`[2] < 0.975){
+    comarques$h[i] <- 1
+  }
 }
 
 
