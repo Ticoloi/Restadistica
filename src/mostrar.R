@@ -57,16 +57,18 @@ print(plot_lineal)
 # 3. PLOT: Regressió amb Punt de Trencament (Tau) - CORREGIT ---------------
 
 for (i in seq_along(0:(n_comarques - 1))) {
-nombre_comarca <- i
+nombre_comarca <- 1
 # PLOT DE PROVA
 dada_to_show <- consum_aigua %>% filter(Comarca == noms_comarques[nombre_comarca])
 
 dada_to_show <- dada_to_show %>%
-  mutate(latency_pred = predict(model_amb_tau[[noms_comarques[nombre_comarca]]], newdata = dada_to_show))
+  mutate(latency_pred = predict(model_amb_tau[[noms_comarques[nombre_comarca]]], newdata = dada_to_show),
+         latency_pred2 = predict(regresio_lineal[[noms_comarques[nombre_comarca]]], newdata = dada_to_show))
 
 ggplot(dada_to_show, aes(x = Any, y = Total)) +
   geom_point(color = "steelblue", alpha = 0.6) +
   geom_line(aes(y = latency_pred), color = "red", linewidth = 1.2) +
+  geom_line(aes(y = latency_pred2), color = "blue", linewidth = 1.2)
   labs(
     title = "Regressió lineal múltiple amb knot a load = 150",
     x = "Load",
